@@ -3,6 +3,6 @@
     "component": "Countdown"
   },
   "countdown.title": {
-    "component": "title"
+    "component": "Title"
   }
 }

@@ -8,8 +8,9 @@ interface TitleProps {
     title: string
 }
 
+
 const Title: StorefrontFunctionComponent<TitleProps> = ({ title }) => {
-    const handles = useCssHandles(CSS_HANDLES);
+    const handles = useCssHandles(CSS_HANDLES)
     const titleText = title || <FormattedMessage id="countdown.title" />
 
     return (

@@ -1,19 +1,17 @@
 import React, { useState } from 'react'
-import { TimeSplit } from './typings/global'
-import { tick, getTwoDaysFromNow } from './utils/time'
+import { useQuery } from 'react-apollo'
+import useProduct from 'vtex.product-context/useProduct'
 import { useCssHandles } from 'vtex.css-handles'
 
-interface CountdownProps {
-  targetDate: string
-}
+import { TimeSplit } from './typings/global'
+import { tick, getTwoDaysFromNow } from './utils/time'
+import productReleaseDate from './graphql/productReleaseDate.graphql'
 
 const DEFAULT_TARGET_DATE = getTwoDaysFromNow()
 
 const CSS_HANDLES = ['countdown']
 
-const Countdown: StorefrontFunctionComponent<CountdownProps> = ({
-  targetDate = DEFAULT_TARGET_DATE,
-}) => {
+const Countdown: StorefrontFunctionComponent = () => {
   const [timeRemaining, setTime] = useState<TimeSplit>({
     hours: '00',
     minutes: '00',
@@ -22,7 +20,38 @@ const Countdown: StorefrontFunctionComponent<CountdownProps> = ({
 
   const handles = useCssHandles(CSS_HANDLES)
 
-  tick(targetDate, setTime)
+  const { product } = useProduct()
+  const { data, loading, error } = useQuery(productReleaseDate, {
+    variables: {
+      slug: product?.linkText,
+    },
+    ssr: false,
+  })
+
+  if (!product) {
+    return (
+      <div>
+        <span>There is no product context.</span>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <span>Loading...</span>
+      </div>
+    )
+  }
+  if (error) {
+    return (
+      <div>
+        <span>Error!</span>
+      </div>
+    )
+  }
+
+  tick(data?.product?.releaseDate || DEFAULT_TARGET_DATE, setTime)
 
   return (
     <div className={`${handles.countdown} c-muted-1 db tc`}>
